@@ -27,6 +27,18 @@ public class KotlinBaseListener implements KotlinListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFunc_main(KotlinParser.Func_mainContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunc_main(KotlinParser.Func_mainContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBlock(KotlinParser.BlockContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -274,6 +286,18 @@ public class KotlinBaseListener implements KotlinListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitElse_block(KotlinParser.Else_blockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAb(KotlinParser.AbContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAb(KotlinParser.AbContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -1,12 +1,17 @@
 grammar Kotlin ;
 
 program
-    :  func 'main' OPEN_P CLOSE_P OPEN_B block CLOSE_B EOF
+    :  func_main EOF
+    ;
+
+func_main
+    : func 'main' OPEN_P CLOSE_P OPEN_B block CLOSE_B
     ;
 
 block
     : statement+
     ;
+
 
 statement
     : assignment_statement
@@ -25,7 +30,7 @@ assignment_statement
 
 re_assignment
     : ID '=' expr                           # reassignment
-    | expr op=(INCREMENT|DECREMENT)         # incrementOrDecrement
+    | ID op=(INCREMENT|DECREMENT)         # incrementOrDecrement
     | expr op=(MULT|DIV|ADD|SUB)'=' expr    # simpleOp
     ;
 
@@ -62,12 +67,14 @@ printline
 // ----------------------------------------------------------------------------------
 
 if_statement
-    : 'if' OPEN_P comṕarison CLOSE_P OPEN_B block CLOSE_B ('else' OPEN_B else_block CLOSE_B)?
+    : 'if' OPEN_P comṕarison CLOSE_P OPEN_B block ab CLOSE_B (else_block)?
     ;
 
 else_block
-    : block
+    : 'else' OPEN_B block CLOSE_B
     ;
+
+ab: ;
 
 // ----------------------------------------------------------------------------------
 while_statement
@@ -90,10 +97,13 @@ comṕarison
 
 // ----------------------------------------------------------------------------------
 declaration
-    : 'var'|'val'
+    : 'val'
     ;
 
 // ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
 
 type
     : 'Int' | 'Double' | 'String'
@@ -185,5 +195,6 @@ CLOSE_B
 func
     : 'fun'
     ;
+
 
 WS : [ \t\r\n]+ -> skip ;

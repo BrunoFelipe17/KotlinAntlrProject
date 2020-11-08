@@ -7,7 +7,10 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class KotlinVisitor extends KotlinBaseVisitor<KotlinValue> {
-    public static Map<String, KotlinValue> variables = new HashMap<String, KotlinValue>();
+    private Map<String, KotlinValue> variables = new HashMap<String, KotlinValue>();
+    private Map<String, KotlinValue> temporaryVars = new HashMap<String, KotlinValue>();
+    private GenerateJava generateJava = new GenerateJava();
+    private int ccc = 0;
 
     @Override
     public KotlinValue visitVarDeclaration(KotlinParser.VarDeclarationContext ctx) {
@@ -58,8 +61,11 @@ public class KotlinVisitor extends KotlinBaseVisitor<KotlinValue> {
                 } catch (Exception e) {
                     System.err.println("Error converting to <" + variableValue.getType() + ">");
                     System.exit(1);
+                    generateJava.erase();
                 }
+
                 variables.put(id, newValue);
+
             } else {
                 KotlinValue newValue = new KotlinValue(visit(ctx.expr()));
                 if (variableValue.isInt()) {
@@ -69,6 +75,7 @@ public class KotlinVisitor extends KotlinBaseVisitor<KotlinValue> {
                 } else if (variableValue.isString()) {
                     setString(newValue, id, "String");
                 }
+
             }
         } else {
             System.out.println("Não existe");
@@ -111,6 +118,7 @@ public class KotlinVisitor extends KotlinBaseVisitor<KotlinValue> {
         if (value.isString()) {
             System.err.println("Cannot do math operations on String");
             System.exit(1);
+            generateJava.erase();
         }
         if (value != null) {
             if (ctx.op.getType() == KotlinParser.ADD) {
@@ -132,77 +140,92 @@ public class KotlinVisitor extends KotlinBaseVisitor<KotlinValue> {
         return super.visitSimpleOp(ctx);
     }
 
+
+
     @Override
-    public KotlinValue visitAddOrSub(KotlinParser.AddOrSubContext ctx) {
-        KotlinValue left = visit(ctx.expr(0));
-        KotlinValue right = visit(ctx.expr(1));
-
-        if (left.isInt()) {
-            if (ctx.op.getType() == KotlinParser.ADD) {
-                return new KotlinValue(left.asInt() + right.asInt());
-            }
-            return new KotlinValue(left.asInt() - right.asInt());
-
-        } else if (left.isDouble()) {
-            if (ctx.op.getType() == KotlinParser.ADD) {
-                return new KotlinValue(left.asDouble() + right.asDouble());
-            }
-            return new KotlinValue(left.asDouble() - right.asDouble());
-        }
-        return null;
+    public KotlinValue visitParenthesis(KotlinParser.ParenthesisContext ctx) {
+        return visit(ctx.expr());
     }
+
+
 
     @Override
     public KotlinValue visitMultOrDiv(KotlinParser.MultOrDivContext ctx) {
         KotlinValue left = visit(ctx.expr(0));
         KotlinValue right = visit(ctx.expr(1));
+        KotlinValue finalValue = null;
 
         if (left.isInt()) {
             if (ctx.op.getType() == KotlinParser.MULT) {
-                return new KotlinValue(left.asInt() * right.asInt());
+                finalValue = new KotlinValue(left.asInt() * right.asInt());
+            } else if (ctx.op.getType() == KotlinParser.DIV) {
+                finalValue = new KotlinValue(left.asInt() / right.asInt());
             }
-            return new KotlinValue(left.asInt() / right.asInt());
 
         } else if (left.isDouble()) {
             if (ctx.op.getType() == KotlinParser.MULT) {
-                return new KotlinValue(left.asDouble() * right.asDouble());
+                finalValue = new KotlinValue(left.asDouble() * right.asDouble());
+            } else if (ctx.op.getType() == KotlinParser.DIV) {
+                finalValue = new KotlinValue(left.asDouble() / right.asDouble());
             }
-            return new KotlinValue(left.asDouble() / right.asDouble());
         }
-        return null;
+        return finalValue;
+    }
+
+    @Override
+    public KotlinValue visitAddOrSub(KotlinParser.AddOrSubContext ctx) {
+
+        KotlinValue left = visit(ctx.expr(0));
+        KotlinValue right = visit(ctx.expr(1));
+
+        KotlinValue finalValue = null;
+
+        if (left.isInt()) {
+            if (ctx.op.getType() == KotlinParser.ADD) {
+                finalValue = new KotlinValue(left.asInt() + right.asInt());
+            } else if (ctx.op.getType() == KotlinParser.SUB) {
+                finalValue = new KotlinValue(left.asInt() - right.asInt());
+            }
+
+        } else if (left.isDouble()) {
+            if (ctx.op.getType() == KotlinParser.ADD) {
+                finalValue = new KotlinValue(left.asDouble() + right.asDouble());
+            } else if (ctx.op.getType() == KotlinParser.SUB) {
+                finalValue = new KotlinValue(left.asDouble() - right.asDouble());
+            }
+        }
+        return finalValue;
     }
 
     @Override
     public KotlinValue visitIncrementOrDecrement(KotlinParser.IncrementOrDecrementContext ctx) {
-        String id = ctx.expr().getText();
-        KotlinValue value = visit(ctx.expr());
+        String id = ctx.ID().getText();
+        KotlinValue value = variables.get(id);
 
-        if (value.isString()) {
-            System.err.println("Cannot increment or decrement String values");
-            System.exit(1);
-        }
-
-        if (ctx.op.getType() == KotlinParser.INCREMENT) {
-            if (value.isInt()) {
-                Integer newValueInt = value.asInt();
-                newValueInt++;
-                variables.put(id, new KotlinValue(newValueInt));
-            } else if (value.isDouble()) {
-                Double newValueDouble = value.asDouble();
-                newValueDouble++;
-                variables.put(id, new KotlinValue(newValueDouble));
-            }
-        } else {
-            if (value.isInt()) {
-                Integer newValueInt = value.asInt();
-                newValueInt--;
-                variables.put(id, new KotlinValue(newValueInt));
+        if (variables.get(id) != null) {
+            if (ctx.op.getType() == KotlinParser.INCREMENT) {
+                if (value.isInt()) {
+                    Integer newValueInt = value.asInt();
+                    newValueInt++;
+                    variables.put(id, new KotlinValue(newValueInt));
+                } else if (value.isDouble()) {
+                    Double newValueDouble = value.asDouble();
+                    newValueDouble++;
+                    variables.put(id, new KotlinValue(newValueDouble));
+                }
             } else {
-                Double newValueDouble = value.asDouble();
-                newValueDouble--;
-                variables.put(id, new KotlinValue(newValueDouble));
+                if (value.isInt()) {
+                    Integer newValueInt = value.asInt();
+                    newValueInt--;
+                    variables.put(id, new KotlinValue(newValueInt));
+                } else {
+                    Double newValueDouble = value.asDouble();
+                    newValueDouble--;
+                    variables.put(id, new KotlinValue(newValueDouble));
+                }
             }
         }
+
 
         return super.visitIncrementOrDecrement(ctx);
     }
@@ -341,6 +364,7 @@ public class KotlinVisitor extends KotlinBaseVisitor<KotlinValue> {
             visit(ctx.block());
             booleanExpression = visit(ctx.comṕarison());
         }
+
         return super.visitWhile_statement(ctx);
     }
 
@@ -354,6 +378,7 @@ public class KotlinVisitor extends KotlinBaseVisitor<KotlinValue> {
         } catch (Exception e) {
             System.err.println("<Repeat> statement works only with <Int>");
             System.exit(1);
+            generateJava.erase();
         }
 
         return null;
@@ -374,6 +399,7 @@ public class KotlinVisitor extends KotlinBaseVisitor<KotlinValue> {
             }
         } catch (Exception e) {
             e.getMessage();
+            generateJava.erase();
         }
         return false;
     }
@@ -393,6 +419,7 @@ public class KotlinVisitor extends KotlinBaseVisitor<KotlinValue> {
             }
         } catch (Exception e) {
             e.getMessage();
+            generateJava.erase();
         }
         return false;
     }
@@ -402,6 +429,7 @@ public class KotlinVisitor extends KotlinBaseVisitor<KotlinValue> {
             return left.asDouble().equals(right.asDouble());
         } catch (Exception e) {
             e.getMessage();
+            generateJava.erase();
         }
         return false;
     }
@@ -412,6 +440,7 @@ public class KotlinVisitor extends KotlinBaseVisitor<KotlinValue> {
             addVariable(id, newValue);
         } catch (Exception e) {
             addVariableException(type, value);
+            generateJava.erase();
         }
     }
 
@@ -421,6 +450,7 @@ public class KotlinVisitor extends KotlinBaseVisitor<KotlinValue> {
             addVariable(id, newValue);
         } catch (Exception e) {
             addVariableException(type, value);
+            generateJava.erase();
         }
     }
 
@@ -435,6 +465,7 @@ public class KotlinVisitor extends KotlinBaseVisitor<KotlinValue> {
             }
         } catch (Exception e) {
             addVariableException(type, value);
+            generateJava.erase();
         }
     }
 

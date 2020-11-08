@@ -16,6 +16,12 @@ public interface KotlinVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitProgram(KotlinParser.ProgramContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link KotlinParser#func_main}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunc_main(KotlinParser.Func_mainContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link KotlinParser#block}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -156,6 +162,12 @@ public interface KotlinVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitElse_block(KotlinParser.Else_blockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link KotlinParser#ab}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAb(KotlinParser.AbContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link KotlinParser#while_statement}.
 	 * @param ctx the parse tree

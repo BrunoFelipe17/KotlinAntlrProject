@@ -17,6 +17,16 @@ public interface KotlinListener extends ParseTreeListener {
 	 */
 	void exitProgram(KotlinParser.ProgramContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link KotlinParser#func_main}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunc_main(KotlinParser.Func_mainContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link KotlinParser#func_main}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunc_main(KotlinParser.Func_mainContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link KotlinParser#block}.
 	 * @param ctx the parse tree
 	 */
@@ -256,6 +266,16 @@ public interface KotlinListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitElse_block(KotlinParser.Else_blockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link KotlinParser#ab}.
+	 * @param ctx the parse tree
+	 */
+	void enterAb(KotlinParser.AbContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link KotlinParser#ab}.
+	 * @param ctx the parse tree
+	 */
+	void exitAb(KotlinParser.AbContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link KotlinParser#while_statement}.
 	 * @param ctx the parse tree

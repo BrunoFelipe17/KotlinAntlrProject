@@ -1,33 +1,53 @@
 fun main() {
+    val age: Int = 21
+    val name: String = "Bruno"
+    val price: Double = 10.50
     val num: Int = 0
-    val n: Int = 0
+    val calc: Int = (10 + 10) * 10
+    println(calc)
 
-    val math: Int = 10 + 10 * 10
-    println(math)
-
-    repeat (10) {
-        if (num == 5) {
-            print("Hahaha! ")
-        } else {
-            print(num, " ")
-        }
-        num++
+    if (age > 21) {
+        println(name, " can drink!")
+    } else {
+        println(name, " can't drink :-(")
     }
 
-    println("")
-    while (num < 20) {
+    repeat (10) {
         print(num, " ")
         num++
     }
 
+    num = 0
     println("")
-
-
-    while (n < 30) {
-        if (n % 2 == 0) {
-            println(n, " is pair")
+    println("Valor de num: ", num)
+    while (num < 10) {
+        if (num % 2 == 0) {
+            println(num, " é par")
+        } else {
+            println(num, " é impar")
         }
-        n++
+        num++
     }
 
+
+    println("Alguns calculos")
+
+    print(price)
+    price *= 10
+    println(" *= 10: ", price)
+
+    price = 10.50
+    print(price)
+    price /= 10
+    println(" /= 10: ", price)
+
+    price = 10.50
+    print(price)
+    price += 10
+    println(" += 10: ", price)
+
+    price = 10.50
+    print(price)
+    price -= 10
+    println(" -= 10: ", price)
 }
